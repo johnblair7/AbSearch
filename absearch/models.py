@@ -5,6 +5,15 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field, HttpUrl
 
 
+class PackageOption(BaseModel):
+	label: Optional[str] = None
+	amount_ug: Optional[float] = None
+	price: Optional[float] = None
+	currency: Optional[str] = None
+	concentration_mg_per_ml: Optional[float] = None
+	volume_ul: Optional[float] = None
+
+
 class AntibodyRecord(BaseModel):
 	vendor: str
 	catalog_number: str = Field(description="Vendor catalog or SKU identifier")
@@ -33,10 +42,13 @@ class AntibodyRecord(BaseModel):
 	is_gelatin_free: Optional[bool] = None
 	is_ascites_free: Optional[bool] = None
 
-	# Amount-related
+	# Amount-related (selected/primary option)
 	amount_ug: Optional[float] = None
 	concentration_mg_per_ml: Optional[float] = None
 	volume_ul: Optional[float] = None
+
+	# Optional package options for multi-size products
+	package_options: List[PackageOption] = Field(default_factory=list)
 
 	citations_count: Optional[int] = None
 	validation_images: Optional[int] = None

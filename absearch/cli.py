@@ -12,6 +12,7 @@ from .filters import filter_records
 from .models import Criteria
 from .search import get_providers, search_all_sync
 from .ordering import sort_records_by_priority, normalize_applications
+from .selection import pick_best_package
 
 console = Console()
 
@@ -35,7 +36,8 @@ def _render_table(records) -> None:
 	table.add_column("Amount (ug)")
 	table.add_column("Conc (mg/mL)")
 	table.add_column("Vol (uL)")
-	table.add_column("Price")
+	table.add_column("Best Amount (ug)")
+	table.add_column("Best Price")
 	table.add_column("Citations")
 
 	for r in records:
@@ -50,6 +52,14 @@ def _render_table(records) -> None:
 		amt_str = "" if r.amount_ug is None else f"{r.amount_ug:.0f}"
 		conc_str = "" if r.concentration_mg_per_ml is None else f"{r.concentration_mg_per_ml:g}"
 		vol_str = "" if r.volume_ul is None else f"{r.volume_ul:g}"
+
+		best = pick_best_package(r)
+		best_amt_str = best_price_str = ""
+		if best is not None:
+			best_amt, best_price, best_currency, _ = best
+			best_amt_str = f"{best_amt:.0f}"
+			best_price_str = f"{best_price:.2f} {best_currency or ''}".strip()
+
 		table.add_row(
 			r.vendor,
 			r.catalog_number,
@@ -68,7 +78,8 @@ def _render_table(records) -> None:
 			amt_str,
 			conc_str,
 			vol_str,
-			price_str,
+			best_amt_str,
+			best_price_str,
 			cit_str,
 		)
 
